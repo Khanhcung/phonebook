@@ -870,7 +870,7 @@ module.exports = Cancel;
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(10);
-module.exports = __webpack_require__(49);
+module.exports = __webpack_require__(55);
 
 
 /***/ }),
@@ -892,7 +892,7 @@ var Myheader = __webpack_require__(37);
 var Myfooter = __webpack_require__(39);
 
 var Home = __webpack_require__(41);
-var About = __webpack_require__(47);
+var About = __webpack_require__(53);
 
 var routes = [{ path: '/home', component: Home }, { path: '/about', component: About }];
 
@@ -42364,7 +42364,7 @@ var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(42)
 /* template */
-var __vue_template__ = __webpack_require__(46)
+var __vue_template__ = __webpack_require__(52)
 /* styles */
 var __vue_styles__ = null
 /* scopeId */
@@ -42452,8 +42452,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 
 var Add = __webpack_require__(43);
-var Show = __webpack_require__(59);
-var Edit = __webpack_require__(62);
+var Show = __webpack_require__(46);
+var Edit = __webpack_require__(49);
 /* harmony default export */ __webpack_exports__["default"] = ({
 	components: { Add: Add, Show: Show, Edit: Edit },
 	data: function data() {
@@ -42463,16 +42463,35 @@ var Edit = __webpack_require__(62);
 			editActive: '',
 			list: {},
 			errors: {},
-			loading: false
+			loading: false,
+			search: '',
+			temp: {}
 		};
 	},
+
+	watch: {
+		search: function search() {
+			var _this = this;
+
+			if (this.search.length > 0) {
+				this.temp = this.list.filter(function (item) {
+					return Object.keys(item).some(function (key) {
+						var string = String(item[key]);
+						return string.toLowerCase().indexOf(_this.search.toLowerCase()) > -1;
+					});
+				});
+			} else {
+				this.temp = this.list;
+			}
+		}
+	},
 	mounted: function mounted() {
-		var _this = this;
+		var _this2 = this;
 
 		axios.post('/getData').then(function (response) {
-			return _this.list = response.data;
+			return _this2.list = _this2.temp = response.data;
 		}).catch(function (error) {
-			return _this.errors = error.response.data.errors;
+			return _this2.errors = error.response.data.errors;
 		});
 	},
 
@@ -42485,21 +42504,21 @@ var Edit = __webpack_require__(62);
 			this.addActive = this.showActive = this.editActive = '';
 		},
 		openShow: function openShow(key) {
-			this.$children[1].list = this.list[key];
+			this.$children[1].list = this.temp[key];
 			this.showActive = 'is-active';
 		},
 		openEdit: function openEdit(key) {
-			this.$children[2].list = this.list[key];
+			this.$children[2].list = this.temp[key];
 			this.editActive = 'is-active';
 		},
 		del: function del(key, id) {
-			var _this2 = this;
+			var _this3 = this;
 
 			if (confirm("Are you sure?")) {
 				axios.delete('/phonebook/' + id).then(function (response) {
-					return _this2.list.splice(key, 1);
+					return _this3.list.splice(key, 1);
 				}).catch(function (error) {
-					return _this2.errors = error.response.data.errors;
+					return _this3.errors = error.response.data.errors;
 				});
 			}
 		}
@@ -42620,9 +42639,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 			axios.post('/phonebook', this.$data.list).then(function (response) {
 				_this.close();
 				_this.$parent.list.push(response.data);
-				_this.list.name = '';
-				_this.list.phone = '';
-				_this.list.email = '';
+				_this.$parent.list.sort(function (a, b) {
+					if (a.name > b.name) {
+						return 1;
+					} else if (a.name < b.name) {
+						return -1;
+					}
+				});
+				_this.list = '';
 			}).catch(function (error) {
 				return _this.errors = error.response.data.errors;
 			});
@@ -42787,240 +42811,12 @@ if (false) {
 /* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    [
-      _c(
-        "nav",
-        { staticClass: "panel column is-offset-2 is-8" },
-        [
-          _c("p", { staticClass: "panel-heading" }, [
-            _vm._v("\r\n\t    Phone Book\r\n\t    "),
-            _c(
-              "button",
-              {
-                staticClass: "button is-link is-outlined",
-                on: { click: _vm.openAdd }
-              },
-              [_vm._v("\r\n\t      Add new\r\n\t    ")]
-            ),
-            _vm._v(" "),
-            _vm.loading
-              ? _c("span", { staticClass: "is-pulled-right" }, [
-                  _c("i", { staticClass: "fa fa-refresh fa-spin fa-2x fa-fw" })
-                ])
-              : _vm._e()
-          ]),
-          _vm._v(" "),
-          _vm._m(0),
-          _vm._v(" "),
-          _vm._l(_vm.list, function(item, key) {
-            return _c("a", { staticClass: "panel-block" }, [
-              _c("span", { staticClass: "column is-9" }, [
-                _vm._v("\r\n\t      " + _vm._s(item.name) + "\r\n\t    ")
-              ]),
-              _vm._v(" "),
-              _c("span", { staticClass: "panel-icon column is-1" }, [
-                _c("i", {
-                  staticClass: "has-text-danger fa fa-trash",
-                  attrs: { "aria-hidden": "true" },
-                  on: {
-                    click: function($event) {
-                      _vm.del(key, item.id)
-                    }
-                  }
-                })
-              ]),
-              _vm._v(" "),
-              _c("span", { staticClass: "panel-icon column is-1" }, [
-                _c("i", {
-                  staticClass: "has-text-info fa fa-edit",
-                  attrs: { "aria-hidden": "true" },
-                  on: {
-                    click: function($event) {
-                      _vm.openEdit(key)
-                    }
-                  }
-                })
-              ]),
-              _vm._v(" "),
-              _c("span", { staticClass: "panel-icon column is-1" }, [
-                _c("i", {
-                  staticClass: "has-text-primary fa fa-eye",
-                  attrs: { "aria-hidden": "true" },
-                  on: {
-                    click: function($event) {
-                      _vm.openShow(key)
-                    }
-                  }
-                })
-              ])
-            ])
-          })
-        ],
-        2
-      ),
-      _vm._v(" "),
-      _c("Add", {
-        attrs: { openmodal: _vm.addActive },
-        on: { closeRequest: _vm.close }
-      }),
-      _vm._v(" "),
-      _c("Show", {
-        attrs: { openmodal: _vm.showActive },
-        on: { closeRequest: _vm.close }
-      }),
-      _vm._v(" "),
-      _c("Edit", {
-        attrs: { openmodal: _vm.editActive },
-        on: { closeRequest: _vm.close }
-      })
-    ],
-    1
-  )
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "panel-block" }, [
-      _c("p", { staticClass: "control has-icons-left" }, [
-        _c("input", {
-          staticClass: "input is-small",
-          attrs: { type: "text", placeholder: "search" }
-        }),
-        _vm._v(" "),
-        _c("span", { staticClass: "icon is-small is-left" }, [
-          _c("i", { staticClass: "fa fa-search" })
-        ])
-      ])
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-5b1fe0de", module.exports)
-  }
-}
-
-/***/ }),
-/* 47 */
-/***/ (function(module, exports, __webpack_require__) {
-
 var disposed = false
 var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = null
+var __vue_script__ = __webpack_require__(47)
 /* template */
 var __vue_template__ = __webpack_require__(48)
-/* styles */
-var __vue_styles__ = null
-/* scopeId */
-var __vue_scopeId__ = null
-/* moduleIdentifier (server only) */
-var __vue_module_identifier__ = null
-var Component = normalizeComponent(
-  __vue_script__,
-  __vue_template__,
-  __vue_styles__,
-  __vue_scopeId__,
-  __vue_module_identifier__
-)
-Component.options.__file = "resources\\assets\\js\\components\\About.vue"
-if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] About.vue: functional components are not supported with templates, they should use render functions.")}
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-3d61a39e", Component.options)
-  } else {
-    hotAPI.reload("data-v-3d61a39e", Component.options)
-  }
-  module.hot.dispose(function (data) {
-    disposed = true
-  })
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _vm._m(0)
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("body", [
-      _c("section", { staticClass: "section" }, [
-        _c("div", { staticClass: "container" }, [
-          _c("h1", { staticClass: "title" }, [_vm._v("Section")]),
-          _vm._v(" "),
-          _c("h2", { staticClass: "subtitle" }, [
-            _vm._v("\n        A simple container to divide your page into "),
-            _c("strong", [_vm._v("sections")]),
-            _vm._v(", like the one you're currently reading\n      ")
-          ])
-        ])
-      ])
-    ])
-  }
-]
-render._withStripped = true
-module.exports = { render: render, staticRenderFns: staticRenderFns }
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-3d61a39e", module.exports)
-  }
-}
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 50 */,
-/* 51 */,
-/* 52 */,
-/* 53 */,
-/* 54 */,
-/* 55 */,
-/* 56 */,
-/* 57 */,
-/* 58 */,
-/* 59 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var disposed = false
-var normalizeComponent = __webpack_require__(1)
-/* script */
-var __vue_script__ = __webpack_require__(60)
-/* template */
-var __vue_template__ = __webpack_require__(61)
 /* styles */
 var __vue_styles__ = null
 /* scopeId */
@@ -43058,7 +42854,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 60 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -43110,7 +42906,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 61 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -43194,15 +42990,15 @@ if (false) {
 }
 
 /***/ }),
-/* 62 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 var normalizeComponent = __webpack_require__(1)
 /* script */
-var __vue_script__ = __webpack_require__(63)
+var __vue_script__ = __webpack_require__(50)
 /* template */
-var __vue_template__ = __webpack_require__(64)
+var __vue_template__ = __webpack_require__(51)
 /* styles */
 var __vue_styles__ = null
 /* scopeId */
@@ -43240,7 +43036,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 63 */
+/* 50 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -43310,7 +43106,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 64 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -43463,6 +43259,242 @@ if (false) {
      require("vue-hot-reload-api").rerender("data-v-50d066ee", module.exports)
   }
 }
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    [
+      _c(
+        "nav",
+        { staticClass: "panel column is-offset-2 is-8" },
+        [
+          _c("p", { staticClass: "panel-heading" }, [
+            _vm._v("\r\n\t    Phone Book\r\n\t    "),
+            _c(
+              "button",
+              {
+                staticClass: "button is-link is-outlined",
+                on: { click: _vm.openAdd }
+              },
+              [_vm._v("\r\n\t      Add new\r\n\t    ")]
+            ),
+            _vm._v(" "),
+            _vm.loading
+              ? _c("span", { staticClass: "is-pulled-right" }, [
+                  _c("i", { staticClass: "fa fa-refresh fa-spin fa-2x fa-fw" })
+                ])
+              : _vm._e()
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "panel-block" }, [
+            _c("p", { staticClass: "control has-icons-left" }, [
+              _c("input", {
+                directives: [
+                  {
+                    name: "model",
+                    rawName: "v-model",
+                    value: _vm.search,
+                    expression: "search"
+                  }
+                ],
+                staticClass: "input is-small",
+                attrs: { type: "text", placeholder: "search" },
+                domProps: { value: _vm.search },
+                on: {
+                  input: function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.search = $event.target.value
+                  }
+                }
+              }),
+              _vm._v(" "),
+              _vm._m(0)
+            ])
+          ]),
+          _vm._v(" "),
+          _vm._l(_vm.temp, function(item, key) {
+            return _c("a", { staticClass: "panel-block" }, [
+              _c("span", { staticClass: "column is-9" }, [
+                _vm._v("\r\n\t      " + _vm._s(item.name) + "\r\n\t    ")
+              ]),
+              _vm._v(" "),
+              _c("span", { staticClass: "panel-icon column is-1" }, [
+                _c("i", {
+                  staticClass: "has-text-danger fa fa-trash",
+                  attrs: { "aria-hidden": "true" },
+                  on: {
+                    click: function($event) {
+                      _vm.del(key, item.id)
+                    }
+                  }
+                })
+              ]),
+              _vm._v(" "),
+              _c("span", { staticClass: "panel-icon column is-1" }, [
+                _c("i", {
+                  staticClass: "has-text-info fa fa-edit",
+                  attrs: { "aria-hidden": "true" },
+                  on: {
+                    click: function($event) {
+                      _vm.openEdit(key)
+                    }
+                  }
+                })
+              ]),
+              _vm._v(" "),
+              _c("span", { staticClass: "panel-icon column is-1" }, [
+                _c("i", {
+                  staticClass: "has-text-primary fa fa-eye",
+                  attrs: { "aria-hidden": "true" },
+                  on: {
+                    click: function($event) {
+                      _vm.openShow(key)
+                    }
+                  }
+                })
+              ])
+            ])
+          })
+        ],
+        2
+      ),
+      _vm._v(" "),
+      _c("Add", {
+        attrs: { openmodal: _vm.addActive },
+        on: { closeRequest: _vm.close }
+      }),
+      _vm._v(" "),
+      _c("Show", {
+        attrs: { openmodal: _vm.showActive },
+        on: { closeRequest: _vm.close }
+      }),
+      _vm._v(" "),
+      _c("Edit", {
+        attrs: { openmodal: _vm.editActive },
+        on: { closeRequest: _vm.close }
+      })
+    ],
+    1
+  )
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("span", { staticClass: "icon is-small is-left" }, [
+      _c("i", { staticClass: "fa fa-search" })
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-5b1fe0de", module.exports)
+  }
+}
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = null
+/* template */
+var __vue_template__ = __webpack_require__(54)
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources\\assets\\js\\components\\About.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] About.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-3d61a39e", Component.options)
+  } else {
+    hotAPI.reload("data-v-3d61a39e", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm._m(0)
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("body", [
+      _c("section", { staticClass: "section" }, [
+        _c("div", { staticClass: "container" }, [
+          _c("h1", { staticClass: "title" }, [_vm._v("Section")]),
+          _vm._v(" "),
+          _c("h2", { staticClass: "subtitle" }, [
+            _vm._v("\n        A simple container to divide your page into "),
+            _c("strong", [_vm._v("sections")]),
+            _vm._v(", like the one you're currently reading\n      ")
+          ])
+        ])
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-3d61a39e", module.exports)
+  }
+}
+
+/***/ }),
+/* 55 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
 
 /***/ })
 /******/ ]);

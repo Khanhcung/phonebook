@@ -12,13 +12,13 @@
 	  </p>
 	  <div class="panel-block">
 	    <p class="control has-icons-left">
-	      <input class="input is-small" type="text" placeholder="search">
+	      <input class="input is-small" type="text" placeholder="search" v-model="search">
 	      <span class="icon is-small is-left">
 	        <i class="fa fa-search"></i>
 	      </span>
 	    </p>
 	  </div>
-	  <a class="panel-block" v-for="item,key in list">
+	  <a class="panel-block" v-for="item,key in temp">
 	    <span class="column is-9">
 	      {{ item.name }}
 	    </span>
@@ -54,12 +54,29 @@ let Edit = require('./Edit.vue');
 				editActive:'',
 				list:{},
 				errors:{},
-				loading:false
+				loading:false,
+				search:'',
+				temp:{}
+			}
+		},
+		watch:{
+			search(){
+				if (this.search.length > 0) {
+					this.temp = this.list.filter((item) => {
+						 return Object.keys(item).some((key)=>{
+							let string = String(item[key])
+							return string.toLowerCase().indexOf(this.search.toLowerCase()) >-1
+						})
+						
+					});
+				} else{
+					this.temp = this.list
+				}
 			}
 		},
 		mounted(){
 			axios.post('/getData')
-			.then((response)=> this.list = response.data)
+			.then((response)=> this.list = this.temp = response.data)
   			.catch((error) => this.errors = error.response.data.errors)
 		},
 		methods:{
@@ -71,11 +88,11 @@ let Edit = require('./Edit.vue');
 				this.addActive = this.showActive = this.editActive = '';
 			},
 			openShow(key){
-				this.$children[1].list = this.list[key]
+				this.$children[1].list = this.temp[key]
 				this.showActive = 'is-active';
 			},
 			openEdit(key){
-				this.$children[2].list = this.list[key]
+				this.$children[2].list = this.temp[key]
 				this.editActive = 'is-active';
 			},
 			del(key,id){
